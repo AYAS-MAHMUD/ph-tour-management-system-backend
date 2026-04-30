@@ -6,6 +6,17 @@ import { authServices } from "./auth.service";
 const credentialLogin = asyncHandler(
     async(req:Request, res : Response)=>{
         const users = await authServices.credentialLogin(req.body);
+
+        res.cookie("refreshToken",users.refreshToken,{
+            httpOnly : true,
+            secure : true,
+
+        })
+        res.cookie("accessToken",users.accessToken,{
+            httpOnly : true,
+            secure : true,
+
+        })
         sendResponse(res, {
             statusCode : 200,
             success : true,
@@ -15,8 +26,22 @@ const credentialLogin = asyncHandler(
         
     }
 )
+const getNewAccessToken = asyncHandler(
+    async(req:Request, res : Response)=>{
+        const refreshToken = req.cookies.refreshToken;
+        const tokenInfo = await authServices.getNewAccessToken(refreshToken);
+
+        sendResponse(res, {
+            statusCode : 200,
+            success : true,
+            message : "User Refresh Token generated successfully",
+            data : tokenInfo
+        })
+        
+    }
+)
 
 
 export const authController = {
-    credentialLogin,
+    credentialLogin,getNewAccessToken
 }

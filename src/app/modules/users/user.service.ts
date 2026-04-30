@@ -1,5 +1,6 @@
 
-import { IAuthProvider, IUser } from "./user.interface";
+import { JwtPayload } from "jsonwebtoken";
+import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model"
 import bcrypt from "bcryptjs";
 
@@ -33,6 +34,31 @@ const getAllUsers = async()=>{
         }
     };
 }
+
+
+const updateUser = async(userId : string, payload : Partial<IUser>, decodedtoken : JwtPayload)=>{
+
+    /*
+       1. Email can't be changed
+       2. user will change name , phone , address , picture
+       3. Only admin and super admin can change role and isActive status
+       4. Password  - re hashing
+    */
+   if(payload.role){
+    if(decodedtoken.role === Role.USER || decodedtoken.role === Role.GUIDE){
+        throw new Error("Only Admin and Super Admin can change role")
+    }
+   }
+
+    if(payload.password){
+        const hashedPassword = await bcrypt.hash(payload.password as string, 10);
+        payload.password = hashedPassword;
+    }
+
+    const updateUserdata = await User.findByIdAndUpdate(userId,payload,{new : true});
+    return updateUserdata;
+
+}
 export const userService = {
-    createuser,getAllUsers,
+    createuser,getAllUsers,updateUser
 }

@@ -13,3 +13,13 @@ export const createUserValidation = z.object({
         })
 
 })
+export const updateUserValidation = z.object({
+        body : z.object({
+                name : z.string().min(2).max(50),
+                password: z.string().min(8),
+                phone : z.string().optional(),
+                picture : z.string().optional(),
+                address : z.string().max(200,{message : "Address can't excend 200 character"}).optional(),
+        })
+
+})

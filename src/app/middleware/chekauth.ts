@@ -10,7 +10,7 @@ export const checkauth = (...roles:string[])=> async (req:Request,res : Response
         if(!accessToken){
             throw new Error("No Token Recieved")
         }
-        const verifiedToken = jwt.verify(accessToken , config.jwt_secret as string)
+        const verifiedToken = jwt.verify(accessToken , config.jwt_access_secret as string)
         // console.log(verifiedToken)
         if (!roles.includes(((verifiedToken as JwtPayload).role))) {
             throw new Error("Unauthorized Access")
