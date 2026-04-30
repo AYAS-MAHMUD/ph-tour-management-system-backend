@@ -4,7 +4,7 @@ import { config } from "../../config";
 import { IUser } from "../users/user.interface"
 import { User } from "../users/user.model";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 const credentialLogin = async (payload : Partial<IUser>)=>{
     const {email , password} = payload;
     const isEmailExit = await User.findOne({email});
@@ -41,9 +41,19 @@ const getNewAccessToken = async (refreshToken : string)=>{
     return {accessToken : jwtPayload.accessToken}
 
 }
+const resetPassword = async (oldPassword : string, newPassword : string, decodedToken : JwtPayload)=>{
+    const isUserExit = await User.findOne({email : decodedToken.email});
+    // console.log(isUserExit)
+    const isOldPasswordMatch = await bcrypt.compare(oldPassword,isUserExit!.password as string)
+    if(!isOldPasswordMatch){
+        throw new Error("Old Password is Incorrect");
+    }
+    isUserExit!.password = await bcrypt.hash(newPassword,10);
+    await isUserExit!.save();
 
+}
 
 
 export const authServices = {
-    credentialLogin,getNewAccessToken
+    credentialLogin,getNewAccessToken,resetPassword
 }

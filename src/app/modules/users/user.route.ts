@@ -12,4 +12,5 @@ const router = Router();
 router.post('/register',validateRequest(createUserValidation),userController.createUser);
 router.get("/all-users",checkauth("user","super_admin"),userController.getAllUsers);
 router.patch("/:id",checkauth(...Object.values(Role)),userController.updateUser);
+
 export const userRouter = router;
