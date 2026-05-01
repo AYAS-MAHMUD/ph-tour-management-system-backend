@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
+import { config } from "../config";
 
 const globalErrorHandler = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,6 +10,10 @@ const globalErrorHandler = (
   next: NextFunction
 ) => {
   console.error(err);
+  
+  if(config.node_env === "developmnet"){
+    console.log(err)
+  }
   
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";

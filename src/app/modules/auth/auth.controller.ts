@@ -6,16 +6,50 @@ import passport from "passport";
 import { createUserTokens } from "../../../utils/userTokens";
 import { config } from "../../config";
 
-const credentialLogin = asyncHandler(
-    async(req:Request, res : Response)=>{
-        const users = await authServices.credentialLogin(req.body);
+// const credentialLogin = asyncHandler(
+//     async(req:Request, res : Response , next : NextFunction)=>{
+//         const users = await authServices.credentialLogin(req.body);
 
-        res.cookie("refreshToken",users.refreshToken,{
+//         res.cookie("refreshToken",users.refreshToken,{
+//             httpOnly : true,
+//             secure : true,
+
+//         })
+//         res.cookie("accessToken",users.accessToken,{
+//             httpOnly : true,
+//             secure : true,
+
+//         })
+//         sendResponse(res, {
+//             statusCode : 200,
+//             success : true,
+//             message : "User Login successfully",
+//             data : users
+//         })
+
+        
+//     }
+// )
+const credentialLogin = asyncHandler(
+    async(req:Request, res : Response , next : NextFunction)=>{
+        // const users = await authServices.credentialLogin(req.body);
+        passport.authenticate("local",async(err : any , users : any , info : any)=>{
+        
+            if(err){
+                return next(err);
+            }
+            if(!users){
+                return next(new Error(info.message || "Login Failed"));
+            }
+
+            const userToken = createUserTokens(users);
+
+        res.cookie("refreshToken",userToken.refreshToken,{
             httpOnly : true,
             secure : true,
 
         })
-        res.cookie("accessToken",users.accessToken,{
+        res.cookie("accessToken",userToken.accessToken,{
             httpOnly : true,
             secure : true,
 
@@ -24,11 +58,20 @@ const credentialLogin = asyncHandler(
             statusCode : 200,
             success : true,
             message : "User Login successfully",
-            data : users
+            data : {
+                user : users,
+                accessToken : userToken.accessToken,
+                refreshToken : userToken.refreshToken
+            }
         })
+        })(req,res,next)
+
         
     }
 )
+
+
+
 const getNewAccessToken = asyncHandler(
     async(req:Request, res : Response)=>{
         const refreshToken = req.cookies.refreshToken;

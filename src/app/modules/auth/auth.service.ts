@@ -5,6 +5,7 @@ import { IUser } from "../users/user.interface"
 import { User } from "../users/user.model";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
+
 const credentialLogin = async (payload : Partial<IUser>)=>{
     const {email , password} = payload;
     const isEmailExit = await User.findOne({email});
