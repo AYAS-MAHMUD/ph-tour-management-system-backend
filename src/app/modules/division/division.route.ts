@@ -10,7 +10,7 @@ import { Role } from "../users/user.interface";
 
 const router = Router()
 
-router.post("/create",checkauth(Role.ADMIN,Role.SUPER_ADMIN),validateRequest(createDivisionZodSchema),divisionController.CreateDivision);
+router.post("/create",checkauth(Role.USER,Role.SUPER_ADMIN),validateRequest(createDivisionZodSchema),divisionController.CreateDivision);
 router.get("/",divisionController.getAllDivision)
 router.patch("/:id",checkauth(Role.ADMIN,Role.SUPER_ADMIN),divisionController.updateDivision)
 router.delete("/:id",checkauth(Role.ADMIN,Role.SUPER_ADMIN),divisionController.deleteDivision)

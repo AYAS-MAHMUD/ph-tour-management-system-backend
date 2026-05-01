@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import { ITour, ITourType } from "./tour.interface";
-
+import slugify  from "slugify";
 
 const tourTypeSchema = new Schema<ITourType>({
     name : {type : String , required : true, unique : true}
@@ -13,7 +13,7 @@ export const TourType = model<ITourType>("TourType",tourTypeSchema);
 
 const tourSchema = new Schema<ITour>({
     title : {type : String, required : true},
-    slug : {type : String, required : true, unique : true},
+    slug : {type : String, unique : true},
     description : {type : String},
     image: {type : [String] , default : []},
     location : {type : String},
@@ -41,4 +41,11 @@ const tourSchema = new Schema<ITour>({
     versionKey : false
 })
 
+
+tourSchema.pre("save",function(){
+    this.slug = slugify(this.title,{
+        lower : true,
+        strict : true
+    })
+})
 export const Tour = model<ITour>("Tour",tourSchema)
