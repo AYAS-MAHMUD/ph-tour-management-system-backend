@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import expressSession from 'express-session';
 import "./app/config/passport"
+import { config } from './app/config';
 
 const app = express();
 // app.use(passport.session());
@@ -18,7 +19,7 @@ app.use(cookieParser());
 
 app.use(passport.initialize());
 app.use(expressSession({
-  secret : 'your_secret_key',
+  secret : config.express_session_secret as string,
   resave : false,
   saveUninitialized : false
 }));
