@@ -43,17 +43,29 @@ const createTour = async (payload : ITour)=>{
 }
 
 const getAllTour = async (query : Record<string,string>)=>{
-    const filter = query;
+    const filter = {...query};
+
     const searchTerm = query.searchTerm || "";
-    
+    const sort = query.sort || "-createdAt";
+    const field = query.fields || "";
+    const select = field.split(",").join(" ");
+
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (Number(page) - 1) * Number(limit);
+    // delete filter.searchTerm;
+    // delete filter.sort;
+    const excludeFields = ["searchTerm","sort","fields"];
+    excludeFields.forEach(f=>delete filter[f]);
+
+
     const searchableField = ["title","description","location"];
-    const serchArray = searchableField.map(f=>({[f] : {$regex : searchTerm, $options : "i" }}));
 
-    const data = await Tour.find({
-        // title : {$regex : query.title ? query.title : "", $options : "i"},
-        $or : serchArray
+    const serchQuery = {
+        $or : searchableField.map(f=>({[f] : {$regex : searchTerm, $options : "i" }}))
 
-    });
+    }
+    const data = await Tour.find(serchQuery).find(filter).sort(sort).select(`${select}`).limit(Number(limit)).skip(Number(skip));
     const totalTour = await Tour.countDocuments();
     return {
         data : data,
